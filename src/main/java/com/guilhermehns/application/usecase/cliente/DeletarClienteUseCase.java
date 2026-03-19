@@ -1,4 +1,4 @@
-package com.guilhermehns.application.usecase;
+package com.guilhermehns.application.usecase.cliente;
 
 import com.guilhermehns.domain.repository.ClienteRepository;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,7 +1,7 @@
-package com.guilhermehns.application.usecase;
+package com.guilhermehns.application.usecase.cliente;
 
-import com.guilhermehns.domain.model.Cliente;
-import com.guilhermehns.domain.model.Endereco;
+import com.guilhermehns.domain.model.cliente.Cliente;
+import com.guilhermehns.domain.model.cliente.Endereco;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -1,7 +1,7 @@
 package com.guilhermehns.adapters.in.controllers;
 
-import com.guilhermehns.application.usecase.*;
-import com.guilhermehns.domain.model.Cliente;
+import com.guilhermehns.application.usecase.cliente.*;
+import com.guilhermehns.domain.model.cliente.Cliente;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

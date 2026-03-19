@@ -1,4 +1,4 @@
-package com.guilhermehns.adapters.out.persistence.mongo;
+package com.guilhermehns.adapters.out.persistence.mongo.cliente;
 
 public class EnderecoEntity {
     public String cep;

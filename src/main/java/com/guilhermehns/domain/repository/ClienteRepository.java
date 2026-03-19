@@ -1,6 +1,6 @@
 package com.guilhermehns.domain.repository;
 
-import com.guilhermehns.domain.model.Cliente;
+import com.guilhermehns.domain.model.cliente.Cliente;
 
 import java.util.List;
 import java.util.Optional;

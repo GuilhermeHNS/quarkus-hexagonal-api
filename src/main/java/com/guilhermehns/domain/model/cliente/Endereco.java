@@ -1,4 +1,4 @@
-package com.guilhermehns.domain.model;
+package com.guilhermehns.domain.model.cliente;
 
 public class Endereco {
 

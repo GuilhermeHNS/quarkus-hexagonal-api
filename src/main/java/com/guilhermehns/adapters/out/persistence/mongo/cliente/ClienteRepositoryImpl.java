@@ -1,7 +1,7 @@
-package com.guilhermehns.adapters.out.persistence.mongo;
+package com.guilhermehns.adapters.out.persistence.mongo.cliente;
 
-import com.guilhermehns.domain.model.Cliente;
-import com.guilhermehns.domain.model.Endereco;
+import com.guilhermehns.domain.model.cliente.Cliente;
+import com.guilhermehns.domain.model.cliente.Endereco;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;

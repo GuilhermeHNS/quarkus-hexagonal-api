@@ -1,4 +1,4 @@
-package com.guilhermehns.adapters.out.persistence.mongo;
+package com.guilhermehns.adapters.out.persistence.mongo.cliente;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.types.ObjectId;
