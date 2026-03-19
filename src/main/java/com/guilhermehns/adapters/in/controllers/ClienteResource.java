@@ -1,9 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
-import com.guilhermehns.application.usecase.AtualizarClienteUseCase;
-import com.guilhermehns.application.usecase.BuscarClientePorIdUseCase;
-import com.guilhermehns.application.usecase.CriarClienteUseCase;
-import com.guilhermehns.application.usecase.ListarClientesUseCase;
+import com.guilhermehns.application.usecase.*;
 import com.guilhermehns.domain.model.Cliente;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -29,6 +26,9 @@ public class ClienteResource {
     @Inject
     AtualizarClienteUseCase atualizarClienteUseCase;
 
+    @Inject
+    DeletarClienteUseCase deletarClienteUseCase;
+
     @GET
     public Response listar() {
         return Response.ok(listarClientesUseCase.executar()).build();
@@ -53,5 +53,12 @@ public class ClienteResource {
         return Response.status(Response.Status.CREATED)
                 .entity(resultado)
                 .build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deletar(@PathParam("id") UUID id) {
+        deletarClienteUseCase.executar(id);
+        return Response.noContent().build();
     }
 }

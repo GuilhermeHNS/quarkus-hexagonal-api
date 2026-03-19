@@ -117,7 +117,11 @@ public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRep
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
+        ClienteEntity entity = find("clienteId", id.toString()).firstResult();
 
+        if(entity != null) {
+            delete(entity);
+        }
     }
 }

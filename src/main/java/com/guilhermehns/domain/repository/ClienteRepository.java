@@ -13,5 +13,5 @@ public interface ClienteRepository {
 
     List<Cliente> findAllClientes();
 
-    void deleteById(String id);
+    void deleteById(UUID id);
 }
