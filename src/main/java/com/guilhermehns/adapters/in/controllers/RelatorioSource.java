@@ -1,5 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
+import com.guilhermehns.application.usecase.relatorio.RelatorioEncalhadosUseCase;
 import com.guilhermehns.application.usecase.relatorio.RelatorioFaturamentoMensalUseCase;
 import com.guilhermehns.application.usecase.relatorio.RelatorioMaiorFaturamentoUseCase;
 import com.guilhermehns.application.usecase.relatorio.RelatorioNovosClientesUseCase;
@@ -23,6 +24,9 @@ public class RelatorioSource {
     @Inject
     RelatorioFaturamentoMensalUseCase relatorioFaturamentoMensalUseCase;
 
+    @Inject
+    RelatorioEncalhadosUseCase relatorioEncalhadosUseCase;
+
     @GET
     @Path("/maior-faturamento")
     public Response maiorFaturamento() {
@@ -39,5 +43,11 @@ public class RelatorioSource {
     @Path("/faturamento-mensal/{mes}")
     public Response faturamentoMensal(@PathParam("mes") int mes) {
         return Response.ok(relatorioFaturamentoMensalUseCase.executar(mes)).build();
+    }
+
+    @GET
+    @Path("/encalhados")
+    public Response encalhados() {
+        return Response.ok(relatorioEncalhadosUseCase.executar()).build();
     }
 }
