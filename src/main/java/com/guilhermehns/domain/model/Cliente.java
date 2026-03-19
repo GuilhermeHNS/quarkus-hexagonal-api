@@ -2,10 +2,11 @@ package com.guilhermehns.domain.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class Cliente {
 
-    private String id;
+    private UUID id;
     private String nomeCompleto;
     private String nomeMae;
     private String cpf;
@@ -20,7 +21,7 @@ public class Cliente {
     public Cliente() {
     }
 
-    public Cliente(String id, String nomeCompleto, String nomeMae, String cpf, String rg, String email, String telefone, LocalDate dataNascimento, LocalDateTime dataCadastro, Endereco endereco) {
+    public Cliente(UUID id, String nomeCompleto, String nomeMae, String cpf, String rg, String email, String telefone, LocalDate dataNascimento, LocalDateTime dataCadastro, Endereco endereco) {
         this.id = id;
         this.nomeCompleto = nomeCompleto;
         this.nomeMae = nomeMae;
@@ -33,11 +34,11 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
