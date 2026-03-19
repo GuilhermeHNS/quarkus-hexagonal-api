@@ -1,5 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
+import com.guilhermehns.application.usecase.BuscarClientePorIdUseCase;
 import com.guilhermehns.application.usecase.CriarClienteUseCase;
 import com.guilhermehns.application.usecase.ListarClientesUseCase;
 import com.guilhermehns.domain.model.Cliente;
@@ -7,6 +8,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.UUID;
 
 @Path("/clientes")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,9 +22,18 @@ public class ClienteResource {
     @Inject
     ListarClientesUseCase listarClientesUseCase;
 
+    @Inject
+    BuscarClientePorIdUseCase buscarClientePorIdUseCase;
+
     @GET
     public Response listar() {
         return Response.ok(listarClientesUseCase.executar()).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response buscarPorId(@PathParam("id")UUID id) {
+        return Response.ok(buscarClientePorIdUseCase.executar(id)).build();
     }
 
     @POST

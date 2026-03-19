@@ -45,7 +45,37 @@ public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRep
 
     @Override
     public Optional<Cliente> findById(UUID id) {
-        return Optional.empty();
+        ClienteEntity entity = find("clienteId", id.toString()).firstResult();
+
+        if(entity == null) {
+            return Optional.empty();
+        }
+
+        Cliente cliente = new Cliente();
+        cliente.setId(UUID.fromString(entity.clienteId));
+        cliente.setNomeCompleto(entity.nomeCompleto);
+        cliente.setNomeMae(entity.nomeMae);
+        cliente.setCpf(entity.cpf);
+        cliente.setRg(entity.rg);
+        cliente.setEmail(entity.email);
+        cliente.setTelefone(entity.telefone);
+        cliente.setDataNascimento(entity.dataNascimento);
+        cliente.setDataCadastro(entity.dataCadastro);
+
+        if (entity.endereco != null) {
+            Endereco endereco = new Endereco();
+            endereco.setCep(entity.endereco.cep);
+            endereco.setLogradouro(entity.endereco.logradouro);
+            endereco.setNumero(entity.endereco.numero);
+            endereco.setComplemento(entity.endereco.complemento);
+            endereco.setBairro(entity.endereco.bairro);
+            endereco.setCidade(entity.endereco.cidade);
+            endereco.setEstado(entity.endereco.estado);
+
+            cliente.setEndereco(endereco);
+        }
+
+        return Optional.of(cliente);
     }
 
     @Override
