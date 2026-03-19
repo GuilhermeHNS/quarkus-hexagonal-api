@@ -1,9 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
-import com.guilhermehns.application.usecase.produto.AtualizarProdutoUseCase;
-import com.guilhermehns.application.usecase.produto.BuscarProdutoPorIdUseCase;
-import com.guilhermehns.application.usecase.produto.CriarProdutoUseCase;
-import com.guilhermehns.application.usecase.produto.ListarProdutosUseCase;
+import com.guilhermehns.application.usecase.produto.*;
 import com.guilhermehns.domain.model.produto.Produto;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -29,6 +26,9 @@ public class ProdutoResource {
     @Inject
     AtualizarProdutoUseCase atualizarProdutoUseCase;
 
+    @Inject
+    DeletarProdutoUseCase deletarProdutoUseCase;
+
     @GET
     public Response listar() {
         return Response.ok(listarProdutosUseCase.executar()).build();
@@ -51,6 +51,13 @@ public class ProdutoResource {
     public Response atualizar(@PathParam("id") UUID id, Produto produto) {
         Produto produtoAtualizado = atualizarProdutoUseCase.executar(id, produto);
         return Response.ok(produtoAtualizado).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deletar(@PathParam("id") UUID id) {
+        deletarProdutoUseCase.executar(id);
+        return Response.noContent().build();
     }
 
 }
