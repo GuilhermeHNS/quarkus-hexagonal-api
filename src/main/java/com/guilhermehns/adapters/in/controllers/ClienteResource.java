@@ -1,5 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
+import com.guilhermehns.application.usecase.AtualizarClienteUseCase;
 import com.guilhermehns.application.usecase.BuscarClientePorIdUseCase;
 import com.guilhermehns.application.usecase.CriarClienteUseCase;
 import com.guilhermehns.application.usecase.ListarClientesUseCase;
@@ -25,6 +26,9 @@ public class ClienteResource {
     @Inject
     BuscarClientePorIdUseCase buscarClientePorIdUseCase;
 
+    @Inject
+    AtualizarClienteUseCase atualizarClienteUseCase;
+
     @GET
     public Response listar() {
         return Response.ok(listarClientesUseCase.executar()).build();
@@ -34,6 +38,13 @@ public class ClienteResource {
     @Path("/{id}")
     public Response buscarPorId(@PathParam("id")UUID id) {
         return Response.ok(buscarClientePorIdUseCase.executar(id)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response atualizar(@PathParam("id") UUID id, Cliente cliente) {
+        Cliente clienteAtualizado = atualizarClienteUseCase.executar(id, cliente);
+        return Response.ok(clienteAtualizado).build();
     }
 
     @POST

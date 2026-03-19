@@ -15,6 +15,12 @@ public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRep
     @Override
     public Cliente save(Cliente cliente) {
         ClienteEntity entity = new ClienteEntity();
+
+        ClienteEntity existingEntity = find("clienteId", cliente.getId().toString()).firstResult();
+        if (existingEntity != null) {
+            entity.id = existingEntity.id;
+        }
+
         entity.clienteId = cliente.getId().toString();
         entity.nomeCompleto = cliente.getNomeCompleto();
         entity.nomeMae = cliente.getNomeMae();
@@ -38,7 +44,7 @@ public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRep
             entity.endereco = enderecoEntity;
         }
 
-        persist(entity);
+        persistOrUpdate(entity);
 
         return cliente;
     }
