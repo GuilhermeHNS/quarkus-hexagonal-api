@@ -1,16 +1,17 @@
 package com.guilhermehns.adapters.out.persistence.mongo;
 
 import com.guilhermehns.domain.model.Cliente;
+import com.guilhermehns.domain.model.Endereco;
 import com.guilhermehns.domain.repository.ClienteRepository;
+import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.Optional;
-
-import static io.quarkus.mongodb.panache.PanacheMongoEntityBase.persist;
+import java.util.UUID;
 
 @ApplicationScoped
-public class ClienteRepositoryImpl implements ClienteRepository {
+public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRepository<ClienteEntity> {
     @Override
     public Cliente save(Cliente cliente) {
         ClienteEntity entity = new ClienteEntity();
@@ -43,13 +44,40 @@ public class ClienteRepositoryImpl implements ClienteRepository {
     }
 
     @Override
-    public Optional<Cliente> getById(String id) {
+    public Optional<Cliente> findById(UUID id) {
         return Optional.empty();
     }
 
     @Override
-    public List<Cliente> list() {
-        return List.of();
+    public List<Cliente> findAllClientes() {
+        return listAll().stream().map(entity -> {
+            Cliente cliente = new Cliente();
+
+            cliente.setId(UUID.fromString(entity.clienteId));
+            cliente.setNomeCompleto(entity.nomeCompleto);
+            cliente.setNomeMae(entity.nomeMae);
+            cliente.setCpf(entity.cpf);
+            cliente.setRg(entity.rg);
+            cliente.setEmail(entity.email);
+            cliente.setTelefone(entity.telefone);
+            cliente.setDataNascimento(entity.dataNascimento);
+            cliente.setDataCadastro(entity.dataCadastro);
+
+            if (entity.endereco != null) {
+                Endereco endereco = new Endereco();
+                endereco.setCep(entity.endereco.cep);
+                endereco.setLogradouro(entity.endereco.logradouro);
+                endereco.setNumero(entity.endereco.numero);
+                endereco.setComplemento(entity.endereco.complemento);
+                endereco.setBairro(entity.endereco.bairro);
+                endereco.setCidade(entity.endereco.cidade);
+                endereco.setEstado(entity.endereco.estado);
+
+                cliente.setEndereco(endereco);
+            }
+
+            return cliente;
+        }).toList();
     }
 
     @Override
