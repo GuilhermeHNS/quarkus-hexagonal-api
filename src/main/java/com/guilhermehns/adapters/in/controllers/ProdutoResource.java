@@ -1,5 +1,6 @@
 package com.guilhermehns.adapters.in.controllers;
 
+import com.guilhermehns.application.usecase.produto.AtualizarProdutoUseCase;
 import com.guilhermehns.application.usecase.produto.BuscarProdutoPorIdUseCase;
 import com.guilhermehns.application.usecase.produto.CriarProdutoUseCase;
 import com.guilhermehns.application.usecase.produto.ListarProdutosUseCase;
@@ -25,6 +26,9 @@ public class ProdutoResource {
     @Inject
     BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase;
 
+    @Inject
+    AtualizarProdutoUseCase atualizarProdutoUseCase;
+
     @GET
     public Response listar() {
         return Response.ok(listarProdutosUseCase.executar()).build();
@@ -40,6 +44,13 @@ public class ProdutoResource {
     public Response criar(Produto produto) {
         Produto produtoCriado = criarProdutoUseCase.executar(produto);
         return Response.status(Response.Status.CREATED).entity(produtoCriado).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response atualizar(@PathParam("id") UUID id, Produto produto) {
+        Produto produtoAtualizado = atualizarProdutoUseCase.executar(id, produto);
+        return Response.ok(produtoAtualizado).build();
     }
 
 }
