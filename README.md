@@ -1,69 +1,92 @@
-# quarkus-api
+# Desafio Técnico
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Descrição
+API REST desenvolvida em Java com Quarkus para gerenciamento de clientes, produtos e vendas, incluindo os relatórios obrigatórios definidos no desafio técnico.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Tecnologias utilizadas
+- Java 21
+- Quarkus
+- MongoDB
+- JUnit 5
+- Mockito
+- Rest Assured
+- OpenAPI / Swagger
 
-## Running the application in dev mode
+## Funcionalidades implementadas
 
-You can run your application in dev mode that enables live coding using:
+### Clientes
+- Criar cliente
+- Listar clientes
+- Buscar cliente por ID
+- Atualizar cliente
+- Deletar cliente
 
-```shell script
+### Produtos
+- Criar produto
+- Listar produtos
+- Buscar produto por ID
+- Atualizar produto
+- Deletar produto
+
+### Vendas
+- Criar venda
+- Listar vendas
+- Buscar venda por ID
+- Atualizar venda
+- Deletar venda
+
+### Relatórios
+- Maior Faturamento
+- Novos Clientes
+- Faturamento Mensal
+- Encalhados
+
+## Regras de negócio
+- Forma de pagamento da venda: DINHEIRO ou CARTAO_CREDITO
+- Para pagamento em dinheiro, valorPago é obrigatório
+- Para pagamento em cartão, numeroCartao é obrigatório
+- Imposto fixo de 9% nas vendas
+- Não há controle de estoque
+- Os produtos exibidos para venda são listados em ordem alfabética por nome
+
+## Endpoints principais
+
+### Clientes
+- GET /clientes
+- GET /clientes/{id}
+- POST /clientes
+- PUT /clientes/{id}
+- DELETE /clientes/{id}
+
+### Produtos
+- GET /produtos
+- GET /produtos/{id}
+- POST /produtos
+- PUT /produtos/{id}
+- DELETE /produtos/{id}
+
+### Vendas
+- GET /vendas
+- GET /vendas/{id}
+- POST /vendas
+- PUT /vendas/{id}
+- DELETE /vendas/{id}
+
+### Relatórios
+- GET /relatorios/maior-faturamento
+- GET /relatorios/novos-clientes/{ano}
+- GET /relatorios/faturamento-mensal/{dataReferencia}
+- GET /relatorios/encalhados
+
+## Como executar o projeto
+
+### Pré-requisitos
+- Java 21
+- Maven
+- MongoDB em execução
+> Observação: o projeto utiliza Quarkus Dev Services para subir automaticamente uma instância do MongoDB via Docker ao iniciar a aplicação em modo desenvolvimento.
+> Portanto, é necessário que o Docker esteja aberto e rodando antes de executar o projeto.
+
+### Rodando em modo desenvolvimento
+```bash
 ./mvnw quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
-
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
-```
-
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/quarkus-api-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- MongoDB with Panache ([guide](https://quarkus.io/guides/mongodb-panache)): Simplify your persistence code for MongoDB via the active record or the repository pattern
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
