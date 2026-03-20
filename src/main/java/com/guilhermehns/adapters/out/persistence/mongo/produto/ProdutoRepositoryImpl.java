@@ -121,6 +121,16 @@ public class ProdutoRepositoryImpl implements ProdutoRepository, PanacheMongoRep
 
     @Override
     public List<EncalhadoDTO> buscarProdutosEncalhados() {
+
+        Document project = new Document("$project",
+                new Document("_id", 0)
+                        .append("produtoId", "$produtoId")
+                        .append("nome", "$nome")
+                        .append("peso", "$peso")
+                        .append("precoCompra", "$precoCompra")
+                        .append("dataCadastro", "$dataCadastro")
+        );
+
         Document sortMaisAntigos = new Document("$sort",
                 new Document("dataCadastro", 1));
 
@@ -132,7 +142,8 @@ public class ProdutoRepositoryImpl implements ProdutoRepository, PanacheMongoRep
         List<Document> pipeline = List.of(
                 sortMaisAntigos,
                 limit,
-                sortMaisCaros
+                sortMaisCaros,
+                project
         );
 
         List<Document> documentos = mongoCollection()
