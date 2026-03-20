@@ -1,18 +1,13 @@
 package com.guilhermehns.application.usecase.relatorio;
 
 import com.guilhermehns.application.dto.FaturamentoMensalDTO;
-import com.guilhermehns.domain.model.produto.Produto;
-import com.guilhermehns.domain.model.venda.ItemVenda;
-import com.guilhermehns.domain.model.venda.Venda;
 import com.guilhermehns.domain.repository.VendaRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
