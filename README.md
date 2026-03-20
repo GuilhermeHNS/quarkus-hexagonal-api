@@ -41,14 +41,6 @@ API REST desenvolvida em Java com Quarkus para gerenciamento de clientes, produt
 - Faturamento Mensal
 - Encalhados
 
-## Regras de negócio
-- Forma de pagamento da venda: DINHEIRO ou CARTAO_CREDITO
-- Para pagamento em dinheiro, valorPago é obrigatório
-- Para pagamento em cartão, numeroCartao é obrigatório
-- Imposto fixo de 9% nas vendas
-- Não há controle de estoque
-- Os produtos exibidos para venda são listados em ordem alfabética por nome
-
 ## Endpoints principais
 
 ### Clientes
