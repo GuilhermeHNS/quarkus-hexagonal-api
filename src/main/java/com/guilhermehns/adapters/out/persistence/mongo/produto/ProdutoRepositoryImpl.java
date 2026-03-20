@@ -5,6 +5,7 @@ import com.guilhermehns.domain.model.produto.Dimensoes;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.bson.Document;
 import org.bson.types.Decimal128;
@@ -53,7 +54,7 @@ public class ProdutoRepositoryImpl implements ProdutoRepository, PanacheMongoRep
 
     @Override
     public List<Produto> findAllProdutos() {
-        List<ProdutoEntity> entities = listAll();
+        List<ProdutoEntity> entities = findAll(Sort.by("nome")).list();
 
         return entities.stream().map(entity -> {
             Produto produto = new Produto();
