@@ -21,7 +21,4 @@ public class RelatorioMaiorFaturamentoUseCase {
         return repository.buscarProdutosComMaiorFaturamento();
     }
 
-    private BigDecimal calcularFaturamento(ItemVenda item) {
-        return item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade()));
-    }
 }

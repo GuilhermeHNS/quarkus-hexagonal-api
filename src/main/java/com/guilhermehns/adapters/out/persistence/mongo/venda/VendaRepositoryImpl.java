@@ -2,8 +2,6 @@ package com.guilhermehns.adapters.out.persistence.mongo.venda;
 
 import com.guilhermehns.application.dto.FaturamentoMensalItemDTO;
 import com.guilhermehns.application.dto.ItemMaiorFaturamentoDTO;
-import com.guilhermehns.application.dto.RelatorioFaturamentoMensalDTO;
-import com.guilhermehns.application.dto.ResumoFaturamentoMensalDTO;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.model.venda.ItemVenda;
@@ -19,8 +17,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 public class VendaRepositoryImpl implements VendaRepository, PanacheMongoRepository<VendaEntity> {
@@ -213,7 +213,7 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
 
     @Override
     public List<ItemMaiorFaturamentoDTO> buscarProdutosComMaiorFaturamento() {
-        Document unwind = new Document("$unwind", "$itens");
+        Document unwindItens = new Document("$unwind", "$itens");
 
         Document group = new Document("$group",
                 new Document("_id", "$itens.produtoId")
@@ -225,25 +225,42 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
         );
 
         Document sort = new Document("$sort", new Document("faturamento", -1));
+
         Document limit = new Document("$limit", QTDE_ITENS_MAIOR_FATURAMENTO);
 
+        Document lookupProduto = new Document("$lookup",
+                new Document("from", "produtos")
+                        .append("localField", "_id")
+                        .append("foreignField", "produtoId")
+                        .append("as", "produto")
+        );
+
+        Document unwindProduto = new Document("$unwind", "$produto");
+
+        Document project = new Document("$project",
+                new Document("_id", 0)
+                        .append("produtoId", "$_id")
+                        .append("nomeProduto", "$produto.nome")
+                        .append("precoVenda", "$produto.precoVenda")
+        );
+
         List<Document> resultados = mongoCollection()
-                .aggregate(List.of(unwind, group, sort, limit), Document.class)
+                .aggregate(List.of(
+                        unwindItens,
+                        group,
+                        sort,
+                        limit,
+                        lookupProduto,
+                        unwindProduto,
+                        project
+                ), Document.class)
                 .into(new ArrayList<>());
 
         return resultados.stream().map(doc -> {
-            UUID produtoId = UUID.fromString(doc.getString("_id"));
-
-            Produto produto = produtoRepository.findById(produtoId).orElse(null);
-
             ItemMaiorFaturamentoDTO dto = new ItemMaiorFaturamentoDTO();
-            dto.setProdutoId(produtoId);
-
-            if (produto != null) {
-                dto.setNomeProduto(produto.getNome());
-                dto.setPrecoVenda(produto.getPrecoVenda());
-            }
-
+            dto.setProdutoId(UUID.fromString(doc.getString("produtoId")));
+            dto.setNomeProduto(doc.getString("nomeProduto"));
+            dto.setPrecoVenda(new BigDecimal(doc.get("precoVenda").toString()));
             return dto;
         }).toList();
     }
