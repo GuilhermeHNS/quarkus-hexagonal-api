@@ -7,16 +7,14 @@ public class ItemMaiorFaturamentoDTO {
     private UUID produtoId;
     private String nomeProduto;
     private BigDecimal precoVenda;
-    private BigDecimal faturamento;
 
     public ItemMaiorFaturamentoDTO() {
     }
 
-    public ItemMaiorFaturamentoDTO(UUID produtoId, String nomeProduto, BigDecimal precoVenda, BigDecimal faturamento) {
+    public ItemMaiorFaturamentoDTO(UUID produtoId, String nomeProduto, BigDecimal precoVenda) {
         this.produtoId = produtoId;
         this.nomeProduto = nomeProduto;
         this.precoVenda = precoVenda;
-        this.faturamento = faturamento;
     }
 
     public UUID getProdutoId() {
@@ -41,13 +39,5 @@ public class ItemMaiorFaturamentoDTO {
 
     public void setPrecoVenda(BigDecimal precoVenda) {
         this.precoVenda = precoVenda;
-    }
-
-    public BigDecimal getFaturamento() {
-        return faturamento;
-    }
-
-    public void setFaturamento(BigDecimal faturamento) {
-        this.faturamento = faturamento;
     }
 }

@@ -320,13 +320,11 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
 
         return resultados.stream().map(doc -> {
             UUID produtoId = UUID.fromString(doc.getString("_id"));
-            BigDecimal faturamento = new BigDecimal(doc.get("faturamento").toString());
 
             Produto produto = produtoRepository.findById(produtoId).orElse(null);
 
             ItemMaiorFaturamentoDTO dto = new ItemMaiorFaturamentoDTO();
             dto.setProdutoId(produtoId);
-            dto.setFaturamento(faturamento);
 
             if (produto != null) {
                 dto.setNomeProduto(produto.getNome());
