@@ -24,7 +24,7 @@ public class AtualizarClienteUseCaseTest {
 
 
     @BeforeEach
-    void mockaDependencias(){
+    void setUp(){
         repository = Mockito.mock(ClienteRepository.class);
         useCase = new AtualizarClienteUseCase(repository);
     }

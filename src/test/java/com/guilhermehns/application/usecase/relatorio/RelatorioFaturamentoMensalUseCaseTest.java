@@ -19,7 +19,7 @@ public class RelatorioFaturamentoMensalUseCaseTest {
     private RelatorioFaturamentoMensalUseCase useCase;
 
     @BeforeEach
-    void mockaDependencias() {
+    void setUp() {
         vendaRepository = Mockito.mock(VendaRepository.class);
         useCase = new RelatorioFaturamentoMensalUseCase(vendaRepository);
     }

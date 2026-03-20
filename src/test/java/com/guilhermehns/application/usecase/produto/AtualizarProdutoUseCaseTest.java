@@ -23,7 +23,7 @@ public class AtualizarProdutoUseCaseTest {
     private AtualizarProdutoUseCase useCase;
 
     @BeforeEach
-    public void mockaDependencias() {
+    public void setUp() {
         repository = Mockito.mock(ProdutoRepository.class);
         useCase = new AtualizarProdutoUseCase(repository);
     }

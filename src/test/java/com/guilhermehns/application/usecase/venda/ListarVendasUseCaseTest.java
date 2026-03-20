@@ -20,7 +20,7 @@ public class ListarVendasUseCaseTest {
     private ListarVendasUseCase useCase;
 
     @BeforeEach
-    void mockaDependencias() {
+    void setUp() {
         repository = Mockito.mock(VendaRepository.class);
         useCase = new ListarVendasUseCase(repository);
     }

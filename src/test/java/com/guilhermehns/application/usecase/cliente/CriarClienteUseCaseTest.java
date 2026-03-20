@@ -18,7 +18,7 @@ public class CriarClienteUseCaseTest {
     private CriarClienteUseCase useCase;
 
     @BeforeEach
-    void mockaDependencias() {
+    void setUp() {
         repository = Mockito.mock(ClienteRepository.class);
         useCase = new CriarClienteUseCase(repository);
     }

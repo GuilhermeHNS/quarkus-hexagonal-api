@@ -30,7 +30,7 @@ public class CriarVendaUseCaseTest {
     private CriarVendaUseCase useCase;
 
     @BeforeEach
-    public void mockaDependencias() {
+    public void setUp() {
         repository = mock(VendaRepository.class);
         clienteRepository = mock(ClienteRepository.class);
         produtoRepository = mock(ProdutoRepository.class);

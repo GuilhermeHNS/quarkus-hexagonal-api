@@ -31,7 +31,7 @@ public class AtualizarVendaUseCaseTest {
     private AtualizarVendaUseCase useCase;
 
     @BeforeEach
-    public void mockaDependencias() {
+    public void setUp() {
         vendaRepository = Mockito.mock(VendaRepository.class);
         clienteRepository = Mockito.mock(ClienteRepository.class);
         produtoRepository = Mockito.mock(ProdutoRepository.class);

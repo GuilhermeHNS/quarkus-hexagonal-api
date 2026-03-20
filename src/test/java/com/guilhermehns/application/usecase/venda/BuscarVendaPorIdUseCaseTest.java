@@ -22,7 +22,7 @@ public class BuscarVendaPorIdUseCaseTest {
     private BuscarVendaPorIdUseCase useCase;
 
     @BeforeEach
-    void mockaDependencias() {
+    void setUp() {
         repository = Mockito.mock(VendaRepository.class);
         useCase = new BuscarVendaPorIdUseCase(repository);
     }

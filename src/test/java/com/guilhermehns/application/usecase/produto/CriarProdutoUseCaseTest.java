@@ -20,7 +20,7 @@ public class CriarProdutoUseCaseTest {
     private CriarProdutoUseCase useCase;
 
     @BeforeEach
-    public void mockaDependencias() {
+    public void setUp() {
         repository = Mockito.mock(ProdutoRepository.class);
         useCase = new CriarProdutoUseCase(repository);
     }

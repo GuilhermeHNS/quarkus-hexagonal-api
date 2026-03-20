@@ -12,29 +12,28 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class RelatorioNovosClientesUseCaseTest {
+class RelatorioNovosClientesUseCaseTest {
 
     private ClienteRepository clienteRepository;
     private RelatorioNovosClientesUseCase useCase;
 
     @BeforeEach
-    void mockaDependencias() {
+    void setUp() {
         clienteRepository = Mockito.mock(ClienteRepository.class);
         useCase = new RelatorioNovosClientesUseCase(clienteRepository);
     }
 
     @Test
     void deveBuscarNovosClientesPorAnoComSucesso() {
-        int ano = 2026;
-        List<NovoClienteDTO> retornoEsperado = List.of(new NovoClienteDTO());
+        int ano = 2025;
+        List<NovoClienteDTO> esperado = List.of(new NovoClienteDTO());
 
-        Mockito.when(clienteRepository.buscarNovosClientesPorAno(ano))
-                .thenReturn(retornoEsperado);
+        Mockito.when(clienteRepository.buscarNovosClientesPorAno(ano)).thenReturn(esperado);
 
         List<NovoClienteDTO> resultado = useCase.executar(ano);
 
-        assertEquals(retornoEsperado, resultado);
-        Mockito.verify(clienteRepository, Mockito.times(1)).buscarNovosClientesPorAno(ano);
+        assertEquals(esperado, resultado);
+        Mockito.verify(clienteRepository).buscarNovosClientesPorAno(ano);
         Mockito.verifyNoMoreInteractions(clienteRepository);
     }
 
