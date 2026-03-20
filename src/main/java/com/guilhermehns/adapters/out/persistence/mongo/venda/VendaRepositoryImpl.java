@@ -162,8 +162,11 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
     }
 
     @Override
-    public RelatorioFaturamentoMensalDTO buscaFaturamentoMensal(LocalDate dataReferencia) {
-        LocalDate inicioPeriodo = dataReferencia.minusMonths(QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL -1).withDayOfMonth(1);
+    public List<FaturamentoMensalItemDTO> buscaFaturamentoMensal(LocalDate dataReferencia) {
+        LocalDate inicioPeriodo = dataReferencia
+                .minusMonths(QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL - 1)
+                .withDayOfMonth(1);
+
         LocalDate fimPeriodo = dataReferencia.withDayOfMonth(dataReferencia.lengthOfMonth());
 
         LocalDateTime inicioDataHora = inicioPeriodo.atStartOfDay();
@@ -196,70 +199,16 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                 .aggregate(List.of(match, unwind, group, sort), Document.class)
                 .into(new ArrayList<>());
 
-        List<FaturamentoMensalItemDTO> faturamentosEncontrados = resultados.stream().map(doc -> {
+        return resultados.stream().map(doc -> {
             Document id = (Document) doc.get("_id");
 
             FaturamentoMensalItemDTO dto = new FaturamentoMensalItemDTO();
             dto.setAno(id.getInteger("ano"));
             dto.setMes(id.getInteger("mes"));
-
-            BigDecimal faturamento = new BigDecimal(doc.get("faturamento").toString()).setScale(2, RoundingMode.HALF_UP);
-            dto.setFaturamento(faturamento);
-
-            BigDecimal imposto = faturamento.multiply(new BigDecimal("0.09")).setScale(2, RoundingMode.HALF_UP);
-            dto.setImposto(imposto);
+            dto.setFaturamento(new BigDecimal(doc.get("faturamento").toString()).setScale(2, RoundingMode.HALF_UP));
 
             return dto;
         }).toList();
-
-        Map<String, FaturamentoMensalItemDTO> faturamentoPorMes = faturamentosEncontrados.stream()
-                .collect(Collectors.toMap(
-                        dto -> dto.getAno() + "-" + dto.getMes(),
-                        dto -> dto
-                ));
-
-        List<FaturamentoMensalItemDTO> faturamentoCompleto = new ArrayList<>();
-
-        for (int i = 0; i < QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL; i++) {
-            LocalDate mesAtual = dataReferencia.withDayOfMonth(1).minusMonths(i);
-            String chave = mesAtual.getYear() + "-" + mesAtual.getMonthValue();
-
-            FaturamentoMensalItemDTO dtoExistente = faturamentoPorMes.get(chave);
-            if (dtoExistente == null) {
-                dtoExistente = new FaturamentoMensalItemDTO();
-                dtoExistente.setAno(mesAtual.getYear());
-                dtoExistente.setMes(mesAtual.getMonthValue());
-                dtoExistente.setFaturamento(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
-                dtoExistente.setImposto(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
-            }
-
-            faturamentoCompleto.add(dtoExistente);
-        }
-
-        BigDecimal faturamentoLoja = faturamentoCompleto.stream()
-                .map(FaturamentoMensalItemDTO::getFaturamento)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        BigDecimal impostoTotal = faturamentoCompleto.stream()
-                .map(FaturamentoMensalItemDTO::getImposto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        BigDecimal faturamentoMaisImposto = faturamentoLoja
-                .add(impostoTotal)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        ResumoFaturamentoMensalDTO resumo = new ResumoFaturamentoMensalDTO();
-        resumo.setFaturamentoLoja(faturamentoLoja);
-        resumo.setImpostoTotal(impostoTotal);
-        resumo.setFaturamentoMaisImposto(faturamentoMaisImposto);
-
-        RelatorioFaturamentoMensalDTO relatorio = new RelatorioFaturamentoMensalDTO();
-        relatorio.setFaturamentosMensais(faturamentoCompleto);
-        relatorio.setResumo(resumo);
-
-        return relatorio;
     }
 
     @Override

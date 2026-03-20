@@ -1,5 +1,6 @@
 package com.guilhermehns.domain.repository;
 
+import com.guilhermehns.application.dto.FaturamentoMensalItemDTO;
 import com.guilhermehns.application.dto.ItemMaiorFaturamentoDTO;
 import com.guilhermehns.application.dto.RelatorioFaturamentoMensalDTO;
 import com.guilhermehns.domain.model.venda.Venda;
@@ -18,7 +19,7 @@ public interface VendaRepository {
 
     void deleteById(UUID id);
 
-    RelatorioFaturamentoMensalDTO buscaFaturamentoMensal(LocalDate dataReferencia);
+    List<FaturamentoMensalItemDTO> buscaFaturamentoMensal(LocalDate dataReferencia);
 
     List<ItemMaiorFaturamentoDTO> buscarProdutosComMaiorFaturamento();
 }
