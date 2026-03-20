@@ -15,38 +15,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RelatorioNovosClientesUseCaseTest {
     @Test
-    void deveRetornarClientesCadastradosNoAnoInformado() {
+    void deveRetornarNovosClientesDoAnoInformado() {
         ClienteRepository clienteRepository = Mockito.mock(ClienteRepository.class);
-
         RelatorioNovosClientesUseCase useCase = new RelatorioNovosClientesUseCase(clienteRepository);
 
-        Cliente cliente1 = new Cliente();
-        cliente1.setId(UUID.randomUUID());
-        cliente1.setNomeCompleto("Ana Souza");
-        cliente1.setDataNascimento(LocalDate.of(1995, 5, 10));
-        cliente1.setDataCadastro(LocalDateTime.of(2025, 3, 1, 10, 0));
+        NovoClienteDTO dto = new NovoClienteDTO();
+        dto.setClienteId(UUID.randomUUID());
+        dto.setNomeCompleto("Ana Paula Ribeiro");
+        dto.setDataNascimento(LocalDate.of(1995, 4, 12));
+        dto.setDataCadastro(LocalDateTime.of(2026, 3, 20, 7, 19, 52));
 
-        Cliente cliente2 = new Cliente();
-        cliente2.setId(UUID.randomUUID());
-        cliente2.setNomeCompleto("Bruno Lima");
-        cliente2.setDataNascimento(LocalDate.of(1990, 8, 20));
-        cliente2.setDataCadastro(LocalDateTime.of(2025, 7, 15, 14, 30));
+        List<NovoClienteDTO> retornoEsperado = List.of(dto);
 
-        Cliente cliente3 = new Cliente();
-        cliente3.setId(UUID.randomUUID());
-        cliente3.setNomeCompleto("Carlos Dias");
-        cliente3.setDataNascimento(LocalDate.of(1988, 1, 5));
-        cliente3.setDataCadastro(LocalDateTime.of(2024, 12, 31, 23, 59));
+        Mockito.when(clienteRepository.buscarNovosClientesPorAno(2026))
+                .thenReturn(retornoEsperado);
 
-        Mockito.when(clienteRepository.findAllClientes())
-                .thenReturn(List.of(cliente1, cliente2, cliente3));
+        List<NovoClienteDTO> resultado = useCase.executar(2026);
 
-        List<NovoClienteDTO> resultado = useCase.executar(2025);
+        assertEquals(1, resultado.size());
+        assertEquals("Ana Paula Ribeiro", resultado.get(0).getNomeCompleto());
+        assertEquals(LocalDate.of(1995, 4, 12), resultado.get(0).getDataNascimento());
+        assertEquals(LocalDateTime.of(2026, 3, 20, 7, 19, 52), resultado.get(0).getDataCadastro());
 
-        assertEquals(2, resultado.size());
-        assertEquals(cliente1.getId(), resultado.get(0).getClienteId());
-        assertEquals(cliente2.getId(), resultado.get(1).getClienteId());
-
-        Mockito.verify(clienteRepository).findAllClientes();
+        Mockito.verify(clienteRepository).buscarNovosClientesPorAno(2026);
     }
 }

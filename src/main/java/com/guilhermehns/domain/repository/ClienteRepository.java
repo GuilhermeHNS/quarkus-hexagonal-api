@@ -1,5 +1,6 @@
 package com.guilhermehns.domain.repository;
 
+import com.guilhermehns.application.dto.NovoClienteDTO;
 import com.guilhermehns.domain.model.cliente.Cliente;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface ClienteRepository {
     List<Cliente> findAllClientes();
 
     void deleteById(UUID id);
+
+    List<NovoClienteDTO> buscarNovosClientesPorAno(int ano);
 }

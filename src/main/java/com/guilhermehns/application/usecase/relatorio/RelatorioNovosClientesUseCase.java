@@ -17,15 +17,6 @@ public class RelatorioNovosClientesUseCase {
     }
 
     public List<NovoClienteDTO> executar(int ano) {
-        return clienteRepository.findAllClientes().stream()
-                .filter(cliente -> cliente.getDataCadastro() != null
-                        && cliente.getDataCadastro().getYear() == ano)
-                .map(cliente -> new NovoClienteDTO(
-                        cliente.getId(),
-                        cliente.getNomeCompleto(),
-                        cliente.getDataNascimento(),
-                        cliente.getDataCadastro()
-                ))
-                .toList();
+        return clienteRepository.buscarNovosClientesPorAno(ano);
     }
 }

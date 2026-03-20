@@ -1,14 +1,18 @@
 package com.guilhermehns.adapters.out.persistence.mongo.cliente;
 
+import com.guilhermehns.application.dto.NovoClienteDTO;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.cliente.Endereco;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.bson.Document;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @ApplicationScoped
 public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRepository<ClienteEntity> {
@@ -123,5 +127,49 @@ public class ClienteRepositoryImpl implements ClienteRepository, PanacheMongoRep
         if(entity != null) {
             delete(entity);
         }
+    }
+
+    @Override
+    public List<NovoClienteDTO> buscarNovosClientesPorAno(int ano) {
+        LocalDateTime inicioAno = LocalDateTime.of(ano, 1, 1, 0, 0, 0);
+        LocalDateTime fimAno = LocalDateTime.of(ano, 12, 31, 23, 59, 59);
+
+        Document match = new Document("$match",
+                new Document("dataCadastro",
+                        new Document("$gte", inicioAno)
+                                .append("$lte", fimAno)));
+
+        Document project = new Document("$project",
+                new Document("_id", 0)
+                        .append("clienteId", "$clienteId")
+                        .append("nomeCompleto", "$nomeCompleto")
+                        .append("dataNascimento", "$dataNascimento")
+                        .append("dataCadastro", "$dataCadastro")
+        );
+
+        List<Document> result = mongoCollection()
+                .aggregate(List.of(match, project), Document.class)
+                .into(new ArrayList<>());
+
+        return result.stream()
+                .map(doc -> {
+                    NovoClienteDTO dto = new NovoClienteDTO();
+                    dto.setClienteId(UUID.fromString(doc.getString("clienteId")));
+                    dto.setNomeCompleto(doc.getString("nomeCompleto"));
+                    Date dataNascimento = doc.getDate("dataNascimento");
+                    if (dataNascimento != null) {
+                        dto.setDataNascimento(dataNascimento.toInstant()
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate());
+                    }
+
+                    Date dataCadastro = doc.getDate("dataCadastro");
+                    if (dataCadastro != null) {
+                        dto.setDataCadastro(dataCadastro.toInstant()
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDateTime());
+                    }
+                    return dto;
+                }).toList();
     }
 }
