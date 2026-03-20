@@ -1,17 +1,24 @@
 package com.guilhermehns.adapters.out.persistence.mongo.produto;
 
+import com.guilhermehns.application.dto.EncalhadoDTO;
 import com.guilhermehns.domain.model.produto.Dimensoes;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.bson.Document;
+import org.bson.types.Decimal128;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @ApplicationScoped
 public class ProdutoRepositoryImpl implements ProdutoRepository, PanacheMongoRepository<ProdutoEntity> {
+
+    private final Integer LIMIT_PRODUTOS_ENCALHADOS = 3;
+
     @Override
     public Produto save(Produto produto) {
         ProdutoEntity entity = new ProdutoEntity();
@@ -109,5 +116,53 @@ public class ProdutoRepositoryImpl implements ProdutoRepository, PanacheMongoRep
         if (entity != null) {
             delete(entity);
         }
+    }
+
+    @Override
+    public List<EncalhadoDTO> buscarProdutosEncalhados() {
+        Document sortMaisAntigos = new Document("$sort",
+                new Document("dataCadastro", 1));
+
+        Document limit = new Document("$limit", LIMIT_PRODUTOS_ENCALHADOS);
+
+        Document sortMaisCaros = new Document("$sort",
+                new Document("precoCompra", -1));
+
+        List<Document> pipeline = List.of(
+                sortMaisAntigos,
+                limit,
+                sortMaisCaros
+        );
+
+        List<Document> documentos = mongoCollection()
+                .aggregate(pipeline, Document.class)
+                .into(new ArrayList<>());
+
+
+        return documentos.stream()
+                .map(doc -> {
+                    EncalhadoDTO dto = new EncalhadoDTO();
+                    dto.setProdutoId(UUID.fromString(doc.getString("produtoId")));
+                    dto.setNomeProduto(doc.getString("nome"));
+                    Object pesoObj = doc.get("peso");
+                    if (pesoObj instanceof Decimal128 decimal128) {
+                        dto.setPeso(decimal128.bigDecimalValue());
+                    } else if (pesoObj instanceof Number number) {
+                        dto.setPeso(BigDecimal.valueOf(number.doubleValue()));
+                    }
+
+                    Object precoCompraObj = doc.get("precoCompra");
+                    if (precoCompraObj instanceof Decimal128 decimal128) {
+                        dto.setPrecoCompra(decimal128.bigDecimalValue());
+                    } else if (precoCompraObj instanceof Number number) {
+                        dto.setPrecoCompra(BigDecimal.valueOf(number.doubleValue()));
+                    }
+
+                    Object dataCadastroObj = doc.get("dataCadastro");
+                    if (dataCadastroObj instanceof Date date) {
+                        dto.setDataCadastro(date.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime());
+                    }
+                    return dto;
+                }).toList();
     }
 }
