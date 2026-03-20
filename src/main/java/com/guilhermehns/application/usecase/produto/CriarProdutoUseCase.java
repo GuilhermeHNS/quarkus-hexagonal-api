@@ -16,26 +16,54 @@ public class CriarProdutoUseCase {
     }
 
     public Produto executar(Produto produto) {
-
-        if (produto.getNome() == null || produto.getNome().isBlank()) {
-            throw new RuntimeException("Nome é obrigatório");
-        }
-
-        if (produto.getTipo() == null || produto.getTipo().isBlank()) {
-            throw new RuntimeException("Tipo é obrigatório");
-        }
-
-        if(produto.getPrecoCompra() == null ){
-            throw new RuntimeException("Preço de compra é obrigatório");
-        }
-
-        if(produto.getPrecoVenda() == null ){
-            throw new RuntimeException("Preço de compra é obrigatório");
-        }
-
+        validarProduto(produto);
         produto.setId(UUID.randomUUID());
         produto.setDataCadastro(LocalDateTime.now());
 
         return repository.save(produto);
+    }
+
+    private void validarProduto(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto é obrigatório");
+        }
+
+        validarCampoObrigatorio(produto.getNome(), "Nome do produto é obrigatório");
+        validarCampoObrigatorio(produto.getTipo(), "Tipo do produto é obrigatório");
+        validarCampoObrigatorio(produto.getDetalhes(), "Detalhes do produto são obrigatórios");
+
+        if (produto.getDimensoes() == null) {
+            throw new IllegalArgumentException("Dimensões do produto são obrigatórias");
+        }
+
+        if (produto.getDimensoes().getAltura() == null) {
+            throw new IllegalArgumentException("Altura é obrigatória");
+        }
+
+        if (produto.getDimensoes().getLargura() == null) {
+            throw new IllegalArgumentException("Largura é obrigatória");
+        }
+
+        if (produto.getDimensoes().getProfundidade() == null) {
+            throw new IllegalArgumentException("Profundidade é obrigatória");
+        }
+
+        if (produto.getPeso() == null) {
+            throw new IllegalArgumentException("Peso é obrigatório");
+        }
+
+        if (produto.getPrecoCompra() == null) {
+            throw new IllegalArgumentException("Preço de compra é obrigatório");
+        }
+
+        if (produto.getPrecoVenda() == null) {
+            throw new IllegalArgumentException("Preço de venda é obrigatório");
+        }
+    }
+
+    private void validarCampoObrigatorio(String valor, String mensagem) {
+        if (valor == null || valor.isBlank()) {
+            throw new IllegalArgumentException(mensagem);
+        }
     }
 }
