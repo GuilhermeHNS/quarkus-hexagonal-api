@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.venda;
 
+import com.guilhermehns.application.exception.VendaNaoEncontradaException;
 import com.guilhermehns.domain.repository.VendaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -14,7 +15,7 @@ public class DeletarVendaUseCase {
     }
 
     public void executar(UUID id) {
-        repository.findById(id).orElseThrow();
+        repository.findById(id).orElseThrow(VendaNaoEncontradaException::new);
         repository.deleteById(id);
     }
 }

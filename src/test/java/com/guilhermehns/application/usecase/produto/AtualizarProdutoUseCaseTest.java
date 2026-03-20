@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.produto;
 
+import com.guilhermehns.application.exception.ProdutoNaoEncontradoException;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import org.junit.jupiter.api.Test;
@@ -47,22 +48,22 @@ public class AtualizarProdutoUseCaseTest {
     }
 
     @Test
-    void deveLancarExcecaoQuandoProdutoNaoExistir() {
+    void deveLancarExcecaoQuandoProdutoNaoForEncontradoAoBuscarPorId() {
         ProdutoRepository repository = Mockito.mock(ProdutoRepository.class);
-        AtualizarProdutoUseCase useCase = new AtualizarProdutoUseCase(repository);
+        BuscarProdutoPorIdUseCase useCase = new BuscarProdutoPorIdUseCase(repository);
 
         UUID id = UUID.randomUUID();
-        Produto produtoAtualizado = new Produto();
 
         Mockito.when(repository.findById(id))
                 .thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> useCase.executar(id, produtoAtualizado));
+        ProdutoNaoEncontradoException exception = assertThrows(
+                ProdutoNaoEncontradoException.class,
+                () -> useCase.executar(id)
+        );
 
-        assertEquals("Produto não encontrado", exception.getMessage());
+        assertEquals("Produto não encontrado.", exception.getMessage());
         Mockito.verify(repository).findById(id);
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 }
 

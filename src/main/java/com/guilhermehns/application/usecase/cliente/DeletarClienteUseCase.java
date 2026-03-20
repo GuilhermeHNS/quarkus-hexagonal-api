@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.cliente;
 
+import com.guilhermehns.application.exception.ClienteNaoEncontradoException;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -15,7 +16,7 @@ public class DeletarClienteUseCase {
     }
 
     public void executar(UUID id) {
-        repository.findById(id).orElseThrow();
+        repository.findById(id).orElseThrow(ClienteNaoEncontradoException::new);
         repository.deleteById(id);
     }
 }

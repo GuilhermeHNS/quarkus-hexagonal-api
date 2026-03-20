@@ -16,13 +16,14 @@ public class Venda {
     private String numeroCartao;
     private BigDecimal valorPago;
     private List<ItemVenda> itens;
+    private BigDecimal valorTotalProdutos;
+    private BigDecimal valorTotalVenda;
+    private BigDecimal imposto;
 
     public Venda() {
     }
 
-    public Venda(UUID id, Cliente cliente, String codigoVendedor, LocalDateTime dataVenda,
-                 String formaPagamento, String numeroCartao, BigDecimal valorPago,
-                 List<ItemVenda> itens) {
+    public Venda(UUID id, Cliente cliente, String codigoVendedor, LocalDateTime dataVenda, String formaPagamento, String numeroCartao, BigDecimal valorPago, List<ItemVenda> itens, BigDecimal valorTotalProdutos, BigDecimal valorTotalVenda, BigDecimal imposto) {
         this.id = id;
         this.cliente = cliente;
         this.codigoVendedor = codigoVendedor;
@@ -31,6 +32,9 @@ public class Venda {
         this.numeroCartao = numeroCartao;
         this.valorPago = valorPago;
         this.itens = itens;
+        this.valorTotalProdutos = valorTotalProdutos;
+        this.valorTotalVenda = valorTotalVenda;
+        this.imposto = imposto;
     }
 
     public UUID getId() {
@@ -95,5 +99,29 @@ public class Venda {
 
     public void setItens(List<ItemVenda> itens) {
         this.itens = itens;
+    }
+
+    public BigDecimal getValorTotalProdutos() {
+        return valorTotalProdutos;
+    }
+
+    public void setValorTotalProdutos(BigDecimal valorTotalProdutos) {
+        this.valorTotalProdutos = valorTotalProdutos;
+    }
+
+    public BigDecimal getValorTotalVenda() {
+        return valorTotalVenda;
+    }
+
+    public void setValorTotalVenda(BigDecimal valorTotalVenda) {
+        this.valorTotalVenda = valorTotalVenda;
+    }
+
+    public BigDecimal getImposto() {
+        return imposto;
+    }
+
+    public void setImposto(BigDecimal imposto) {
+        this.imposto = imposto;
     }
 }

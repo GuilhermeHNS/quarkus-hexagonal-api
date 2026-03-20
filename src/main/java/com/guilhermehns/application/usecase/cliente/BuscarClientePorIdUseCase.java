@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.cliente;
 
+import com.guilhermehns.application.exception.ClienteNaoEncontradoException;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,6 +17,6 @@ public class BuscarClientePorIdUseCase {
     }
 
     public Cliente executar(UUID id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(ClienteNaoEncontradoException::new);
     }
 }

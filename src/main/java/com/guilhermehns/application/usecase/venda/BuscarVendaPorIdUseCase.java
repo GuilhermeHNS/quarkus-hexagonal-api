@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.venda;
 
+import com.guilhermehns.application.exception.VendaNaoEncontradaException;
 import com.guilhermehns.domain.model.venda.Venda;
 import com.guilhermehns.domain.repository.VendaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,6 +16,7 @@ public class BuscarVendaPorIdUseCase {
     }
 
     public Venda executar(UUID id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id)
+                .orElseThrow(VendaNaoEncontradaException::new);
     }
 }

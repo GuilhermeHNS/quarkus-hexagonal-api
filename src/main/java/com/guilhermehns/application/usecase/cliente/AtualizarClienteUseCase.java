@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.cliente;
 
+import com.guilhermehns.application.exception.ClienteNaoEncontradoException;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.repository.ClienteRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,7 +17,7 @@ public class AtualizarClienteUseCase {
     }
 
     public Cliente executar(UUID id, Cliente novosDados) {
-        Cliente clienteExistente = repository.findById(id).orElseThrow();
+        Cliente clienteExistente = repository.findById(id).orElseThrow(ClienteNaoEncontradoException::new);
 
         clienteExistente.setNomeCompleto(novosDados.getNomeCompleto());
         clienteExistente.setNomeMae(novosDados.getNomeMae());

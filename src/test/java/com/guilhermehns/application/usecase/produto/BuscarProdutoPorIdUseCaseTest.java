@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.produto;
 
+import com.guilhermehns.application.exception.ProdutoNaoEncontradoException;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import org.junit.jupiter.api.Test;
@@ -8,8 +9,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuscarProdutoPorIdUseCaseTest {
 
@@ -32,5 +32,24 @@ public class BuscarProdutoPorIdUseCaseTest {
 
         assertNotNull(resultado);
         assertEquals(id, resultado.getId());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoProdutoNaoForEncontradoAoBuscarPorId() {
+        ProdutoRepository repository = Mockito.mock(ProdutoRepository.class);
+        BuscarProdutoPorIdUseCase useCase = new BuscarProdutoPorIdUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Mockito.when(repository.findById(id))
+                .thenReturn(Optional.empty());
+
+        ProdutoNaoEncontradoException exception = assertThrows(
+                ProdutoNaoEncontradoException.class,
+                () -> useCase.executar(id)
+        );
+
+        assertEquals("Produto não encontrado.", exception.getMessage());
+        Mockito.verify(repository).findById(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.produto;
 
+import com.guilhermehns.application.exception.ProdutoNaoEncontradoException;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -14,7 +15,7 @@ public class DeletarProdutoUseCase {
     }
 
     public void executar(UUID id) {
-        repository.findById(id).orElseThrow();
+        repository.findById(id).orElseThrow(ProdutoNaoEncontradoException::new);
         repository.deleteById(id);
     }
 }

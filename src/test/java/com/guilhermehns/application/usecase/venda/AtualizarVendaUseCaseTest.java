@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.venda;
 
+import com.guilhermehns.application.exception.VendaNaoEncontradaException;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.model.venda.ItemVenda;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AtualizarVendaUseCaseTest {
     @Test
@@ -50,7 +52,7 @@ public class AtualizarVendaUseCaseTest {
         Venda novosDados = new Venda();
         novosDados.setCliente(cliente);
         novosDados.setCodigoVendedor("VEND002");
-        novosDados.setFormaPagamento("CARTAO");
+        novosDados.setFormaPagamento("CARTAO_CREDITO");
         novosDados.setNumeroCartao("1234");
         novosDados.setItens(List.of(itemNovo));
 
@@ -64,11 +66,113 @@ public class AtualizarVendaUseCaseTest {
 
         assertEquals(id, resultado.getId());
         assertEquals("VEND002", resultado.getCodigoVendedor());
-        assertEquals("CARTAO", resultado.getFormaPagamento());
+        assertEquals("CARTAO_CREDITO", resultado.getFormaPagamento());
         assertEquals("1234", resultado.getNumeroCartao());
         assertEquals(1, resultado.getItens().size());
 
         Mockito.verify(repository).findById(id);
         Mockito.verify(repository).save(vendaExistente);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFormaPagamentoForNulaAoAtualizar() {
+        VendaRepository repository = Mockito.mock(VendaRepository.class);
+        AtualizarVendaUseCase useCase = new AtualizarVendaUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Venda novosDados = new Venda();
+        novosDados.setFormaPagamento(null);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Forma de pagamento é obrigatória.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFormaPagamentoForInvalidaAoAtualizar() {
+        VendaRepository repository = Mockito.mock(VendaRepository.class);
+        AtualizarVendaUseCase useCase = new AtualizarVendaUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Venda novosDados = new Venda();
+        novosDados.setFormaPagamento("PIX");
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Forma de pagamento inválida. Use DINHEIRO ou CARTAO_CREDITO.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFormaPagamentoForCartaoCreditoESemNumeroCartaoAoAtualizar() {
+        VendaRepository repository = Mockito.mock(VendaRepository.class);
+        AtualizarVendaUseCase useCase = new AtualizarVendaUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Venda novosDados = new Venda();
+        novosDados.setFormaPagamento("CARTAO_CREDITO");
+        novosDados.setNumeroCartao(null);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Número do cartão é obrigatório para pagamentos com cartão.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFormaPagamentoForDinheiroESemValorPagoAoAtualizar() {
+        VendaRepository repository = Mockito.mock(VendaRepository.class);
+        AtualizarVendaUseCase useCase = new AtualizarVendaUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Venda novosDados = new Venda();
+        novosDados.setFormaPagamento("DINHEIRO");
+        novosDados.setValorPago(null);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Valor pago é obrigatório para pagamentos em dinheiro.", exception.getMessage());
+        Mockito.verifyNoInteractions(repository);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoVendaNaoForEncontradaAoAtualizar() {
+        VendaRepository repository = Mockito.mock(VendaRepository.class);
+        AtualizarVendaUseCase useCase = new AtualizarVendaUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+
+        Venda novosDados = new Venda();
+        novosDados.setFormaPagamento("DINHEIRO");
+        novosDados.setValorPago(new BigDecimal("100.00"));
+
+        Mockito.when(repository.findById(id))
+                .thenReturn(Optional.empty());
+
+        VendaNaoEncontradaException exception = assertThrows(
+                VendaNaoEncontradaException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Venda não encontrada.", exception.getMessage());
+        Mockito.verify(repository).findById(id);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 }

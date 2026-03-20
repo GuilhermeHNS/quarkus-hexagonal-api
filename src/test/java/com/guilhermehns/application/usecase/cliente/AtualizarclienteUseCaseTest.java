@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.cliente;
 
+import com.guilhermehns.application.exception.ClienteNaoEncontradoException;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.cliente.Endereco;
 import com.guilhermehns.domain.repository.ClienteRepository;
@@ -11,8 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AtualizarclienteUseCaseTest {
 
@@ -91,5 +91,26 @@ public class AtualizarclienteUseCaseTest {
         assertEquals("SP", resultado.getEndereco().getEstado());
 
         assertNotNull(resultado.getDataCadastro());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoClienteNaoForEncontradoAoAtualizar() {
+        ClienteRepository repository = Mockito.mock(ClienteRepository.class);
+        AtualizarClienteUseCase useCase = new AtualizarClienteUseCase(repository);
+
+        UUID id = UUID.randomUUID();
+        Cliente novosDados = new Cliente();
+
+        Mockito.when(repository.findById(id))
+                .thenReturn(Optional.empty());
+
+        ClienteNaoEncontradoException exception = assertThrows(
+                ClienteNaoEncontradoException.class,
+                () -> useCase.executar(id, novosDados)
+        );
+
+        assertEquals("Cliente não encontrado.", exception.getMessage());
+        Mockito.verify(repository).findById(id);
+        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
     }
 }

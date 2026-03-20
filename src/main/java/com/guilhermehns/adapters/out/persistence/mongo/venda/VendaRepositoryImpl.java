@@ -4,16 +4,29 @@ import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.model.venda.ItemVenda;
 import com.guilhermehns.domain.model.venda.Venda;
+import com.guilhermehns.domain.repository.ClienteRepository;
+import com.guilhermehns.domain.repository.ProdutoRepository;
 import com.guilhermehns.domain.repository.VendaRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
 public class VendaRepositoryImpl implements VendaRepository, PanacheMongoRepository<VendaEntity> {
+
+    private final ClienteRepository clienteRepository;
+    private final ProdutoRepository produtoRepository;
+
+    public VendaRepositoryImpl(ClienteRepository clienteRepository, ProdutoRepository produtoRepository) {
+        this.clienteRepository = clienteRepository;
+        this.produtoRepository = produtoRepository;
+    }
+
     @Override
     public Venda save(Venda venda) {
         VendaEntity entity = new VendaEntity();
@@ -65,8 +78,8 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
             venda.setValorPago(entity.valorPago);
 
             if (entity.clienteId != null) {
-                Cliente cliente = new Cliente();
-                cliente.setId(UUID.fromString(entity.clienteId));
+                Cliente cliente = clienteRepository.findById(UUID.fromString(entity.clienteId))
+                        .orElse(null);
                 venda.setCliente(cliente);
             }
 
@@ -75,8 +88,8 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                     ItemVenda item = new ItemVenda();
 
                     if (itemEntity.produtoId != null) {
-                        Produto produto = new Produto();
-                        produto.setId(UUID.fromString(itemEntity.produtoId));
+                        Produto produto = produtoRepository.findById(UUID.fromString(itemEntity.produtoId))
+                                .orElse(null);
                         item.setProduto(produto);
                     }
 
@@ -84,6 +97,24 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                     item.setValorUnitario(itemEntity.valorUnitario);
                     return item;
                 }).toList());
+            }
+
+            if (venda.getItens() != null) {
+                BigDecimal valorTotalProdutos = venda.getItens().stream()
+                        .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                venda.setValorTotalProdutos(valorTotalProdutos);
+                BigDecimal imposto = valorTotalProdutos
+                        .multiply(new BigDecimal("0.09"))
+                        .setScale(2, RoundingMode.HALF_UP);
+
+                BigDecimal valorTotalVenda = valorTotalProdutos
+                        .add(imposto)
+                        .setScale(2, RoundingMode.HALF_UP);
+
+                venda.setImposto(imposto);
+                venda.setValorTotalVenda(valorTotalVenda);
             }
 
             return venda;
@@ -106,8 +137,8 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
         venda.setValorPago(entity.valorPago);
 
         if (entity.clienteId != null) {
-            Cliente cliente = new Cliente();
-            cliente.setId(UUID.fromString(entity.clienteId));
+            Cliente cliente = clienteRepository.findById(UUID.fromString(entity.clienteId))
+                    .orElse(null);
             venda.setCliente(cliente);
         }
 
@@ -116,8 +147,8 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                 ItemVenda item = new ItemVenda();
 
                 if (itemEntity.produtoId != null) {
-                    Produto produto = new Produto();
-                    produto.setId(UUID.fromString(itemEntity.produtoId));
+                    Produto produto = produtoRepository.findById(UUID.fromString(itemEntity.produtoId))
+                            .orElse(null);
                     item.setProduto(produto);
                 }
 
@@ -125,6 +156,25 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                 item.setValorUnitario(itemEntity.valorUnitario);
                 return item;
             }).toList());
+        }
+
+        if (venda.getItens() != null) {
+            BigDecimal valorTotalProdutos = venda.getItens().stream()
+                    .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            venda.setValorTotalProdutos(valorTotalProdutos);
+            BigDecimal imposto = valorTotalProdutos
+                    .multiply(new BigDecimal("0.09"))
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal valorTotalVenda = valorTotalProdutos
+                    .add(imposto)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            venda.setImposto(imposto);
+            venda.setValorTotalVenda(valorTotalVenda);
+
         }
 
         return Optional.of(venda);

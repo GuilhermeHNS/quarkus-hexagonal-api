@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.produto;
 
+import com.guilhermehns.application.exception.ProdutoNaoEncontradoException;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.repository.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,7 +18,7 @@ public class AtualizarProdutoUseCase {
 
     public Produto executar(UUID id, Produto produtoAtualizado) {
         Produto produtoExistente = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(ProdutoNaoEncontradoException::new);
 
         produtoExistente.setNome(produtoAtualizado.getNome());
         produtoExistente.setTipo(produtoAtualizado.getTipo());
