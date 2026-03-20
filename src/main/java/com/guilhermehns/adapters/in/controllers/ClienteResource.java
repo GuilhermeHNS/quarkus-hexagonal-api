@@ -71,8 +71,10 @@ public class ClienteResource {
     }
 
     @POST
-    @Operation(summary = "Criar cliente", description = "Cadastra um novo cliente.")
-    @APIResponses({
+    @Operation(
+            summary = "Criar cliente",
+            description = "Cadastra um novo cliente. O campo id é gerado automaticamente pela aplicação e não deve ser enviado na requisição."
+    )    @APIResponses({
             @APIResponse(responseCode = "201", description = "Cliente criado com sucesso"),
             @APIResponse(responseCode = "400", description = "Dados inválidos"),
             @APIResponse(responseCode = "500", description = "Erro interno do servidor")
