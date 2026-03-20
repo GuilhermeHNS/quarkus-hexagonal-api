@@ -1,14 +1,12 @@
 package com.guilhermehns.application.usecase.relatorio;
 
-import com.guilhermehns.application.dto.FaturamentoMensalDTO;
+import com.guilhermehns.application.dto.RelatorioFaturamentoMensalDTO;
 import com.guilhermehns.domain.model.venda.ItemVenda;
 import com.guilhermehns.domain.repository.VendaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
 
 @ApplicationScoped
 public class RelatorioFaturamentoMensalUseCase {
@@ -19,7 +17,7 @@ public class RelatorioFaturamentoMensalUseCase {
         this.vendaRepository = vendaRepository;
     }
 
-    public List<FaturamentoMensalDTO> executar(String dataReferencia) {
+    public RelatorioFaturamentoMensalDTO executar(String dataReferencia) {
 
         LocalDate dataBase = LocalDate.parse(dataReferencia);
 
