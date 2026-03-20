@@ -18,17 +18,7 @@ public class RelatorioMaiorFaturamentoUseCase {
     }
 
     public List<ItemMaiorFaturamentoDTO> executar() {
-        return repository.findAllVendas().stream()
-                .flatMap(venda -> venda.getItens().stream())
-                .sorted(Comparator.comparing(this::calcularFaturamento).reversed())
-                .limit(4)
-                .map(item -> new ItemMaiorFaturamentoDTO(
-                        item.getProduto().getId(),
-                        item.getProduto().getNome(),
-                        item.getProduto().getPrecoVenda(),
-                        calcularFaturamento(item)
-                ))
-                .toList();
+        return repository.buscarProdutosComMaiorFaturamento();
     }
 
     private BigDecimal calcularFaturamento(ItemVenda item) {

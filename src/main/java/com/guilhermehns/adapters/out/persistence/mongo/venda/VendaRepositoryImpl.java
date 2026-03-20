@@ -1,6 +1,7 @@
 package com.guilhermehns.adapters.out.persistence.mongo.venda;
 
 import com.guilhermehns.application.dto.FaturamentoMensalDTO;
+import com.guilhermehns.application.dto.ItemMaiorFaturamentoDTO;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.model.venda.ItemVenda;
@@ -26,6 +27,8 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
     private final ProdutoRepository produtoRepository;
 
     private final Integer QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL = 12;
+
+    private final Integer QTDE_ITENS_MAIOR_FATURAMENTO = 4;
 
     public VendaRepositoryImpl(ClienteRepository clienteRepository, ProdutoRepository produtoRepository) {
         this.clienteRepository = clienteRepository;
@@ -270,5 +273,44 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
         }
 
         return faturamentoCompleto;
+    }
+
+    @Override
+    public List<ItemMaiorFaturamentoDTO> buscarProdutosComMaiorFaturamento() {
+        Document unwind = new Document("$unwind", "$itens");
+
+        Document group = new Document("$group",
+                new Document("_id", "$itens.produtoId")
+                        .append("faturamento",
+                                new Document("$sum",
+                                        new Document("$multiply", List.of("$itens.quantidade", "$itens.valorUnitario"))
+                                )
+                        )
+        );
+
+        Document sort = new Document("$sort", new Document("faturamento", -1));
+        Document limit = new Document("$limit", QTDE_ITENS_MAIOR_FATURAMENTO);
+
+        List<Document> resultados = mongoCollection()
+                .aggregate(List.of(unwind, group, sort, limit), Document.class)
+                .into(new ArrayList<>());
+
+        return resultados.stream().map(doc -> {
+            UUID produtoId = UUID.fromString(doc.getString("_id"));
+            BigDecimal faturamento = new BigDecimal(doc.get("faturamento").toString());
+
+            Produto produto = produtoRepository.findById(produtoId).orElse(null);
+
+            ItemMaiorFaturamentoDTO dto = new ItemMaiorFaturamentoDTO();
+            dto.setProdutoId(produtoId);
+            dto.setFaturamento(faturamento);
+
+            if (produto != null) {
+                dto.setNomeProduto(produto.getNome());
+                dto.setPrecoVenda(produto.getPrecoVenda());
+            }
+
+            return dto;
+        }).toList();
     }
 }
