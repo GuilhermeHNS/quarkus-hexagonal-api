@@ -12,7 +12,7 @@ import java.util.Map;
 public class VendaNaoEncontradaExceptionMapper implements ExceptionMapper<VendaNaoEncontradaException> {
     @Override
     public Response toResponse(VendaNaoEncontradaException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.NOT_FOUND)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(Map.of("mensagem", e.getMessage()))
                 .build();
