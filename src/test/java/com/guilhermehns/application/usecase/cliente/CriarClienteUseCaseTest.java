@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -20,7 +18,7 @@ public class CriarClienteUseCaseTest {
     private CriarClienteUseCase useCase;
 
     @BeforeEach
-    public void mockaDependencias() {
+    void mockaDependencias() {
         repository = Mockito.mock(ClienteRepository.class);
         useCase = new CriarClienteUseCase(repository);
     }
