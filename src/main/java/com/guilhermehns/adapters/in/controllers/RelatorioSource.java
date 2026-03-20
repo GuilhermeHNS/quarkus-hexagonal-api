@@ -40,9 +40,9 @@ public class RelatorioSource {
     }
 
     @GET
-    @Path("/faturamento-mensal/{mes}")
-    public Response faturamentoMensal(@PathParam("mes") int mes) {
-        return Response.ok(relatorioFaturamentoMensalUseCase.executar(mes)).build();
+    @Path("/faturamento-mensal/{dataReferencia}")
+    public Response faturamentoMensal(@PathParam("dataReferencia") String dataReferencia) {
+        return Response.ok(relatorioFaturamentoMensalUseCase.executar(dataReferencia)).build();
     }
 
     @GET

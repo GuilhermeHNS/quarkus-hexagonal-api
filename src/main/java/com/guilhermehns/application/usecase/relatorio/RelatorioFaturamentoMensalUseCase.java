@@ -7,6 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.List;
 
 @ApplicationScoped
 public class RelatorioFaturamentoMensalUseCase {
@@ -17,21 +19,11 @@ public class RelatorioFaturamentoMensalUseCase {
         this.vendaRepository = vendaRepository;
     }
 
-    public FaturamentoMensalDTO executar(int mes) {
-        BigDecimal faturamentoBruto = vendaRepository.findAllVendas().stream()
-                .filter(venda -> venda.getDataVenda() != null && venda.getDataVenda().getMonthValue() == mes)
-                .flatMap(venda -> venda.getItens().stream())
-                .map(this::calcularValorItem)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public List<FaturamentoMensalDTO> executar(String dataReferencia) {
 
-        BigDecimal imposto = faturamentoBruto
-                .multiply(new BigDecimal("0.09"))
-                .setScale(2, RoundingMode.HALF_UP);
+        LocalDate dataBase = LocalDate.parse(dataReferencia);
 
-        BigDecimal faturamentoLiquido = faturamentoBruto.subtract(imposto)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        return new FaturamentoMensalDTO(faturamentoBruto.setScale(2, RoundingMode.HALF_UP), imposto, faturamentoLiquido);
+        return vendaRepository.buscaFaturamentoMensal(dataBase);
     }
 
     private BigDecimal calcularValorItem(ItemVenda item) {

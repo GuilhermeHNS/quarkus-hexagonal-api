@@ -1,5 +1,6 @@
 package com.guilhermehns.adapters.out.persistence.mongo.venda;
 
+import com.guilhermehns.application.dto.FaturamentoMensalDTO;
 import com.guilhermehns.domain.model.cliente.Cliente;
 import com.guilhermehns.domain.model.produto.Produto;
 import com.guilhermehns.domain.model.venda.ItemVenda;
@@ -9,18 +10,22 @@ import com.guilhermehns.domain.repository.ProdutoRepository;
 import com.guilhermehns.domain.repository.VendaRepository;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.bson.Document;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class VendaRepositoryImpl implements VendaRepository, PanacheMongoRepository<VendaEntity> {
 
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
+
+    private final Integer QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL = 12;
 
     public VendaRepositoryImpl(ClienteRepository clienteRepository, ProdutoRepository produtoRepository) {
         this.clienteRepository = clienteRepository;
@@ -124,7 +129,7 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
     @Override
     public Optional<Venda> findById(UUID id) {
         VendaEntity entity = find("vendaId", id.toString()).firstResult();
-        if(entity == null) {
+        if (entity == null) {
             return Optional.empty();
         }
 
@@ -183,7 +188,87 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
     @Override
     public void deleteById(UUID id) {
         VendaEntity entity = find("vendaId", id.toString()).firstResult();
-        if(entity != null)
+        if (entity != null)
             delete(entity);
+    }
+
+    @Override
+    public List<FaturamentoMensalDTO> buscaFaturamentoMensal(LocalDate dataReferencia) {
+        LocalDate inicioPeriodo = dataReferencia.minusMonths(11).withDayOfMonth(1);
+        LocalDate fimPeriodo = dataReferencia.withDayOfMonth(dataReferencia.lengthOfMonth());
+
+        LocalDateTime inicioDataHora = inicioPeriodo.atStartOfDay();
+        LocalDateTime fimDataHora = fimPeriodo.atTime(23, 59, 59);
+
+        Document match = new Document("$match",
+                new Document("dataVenda",
+                        new Document("$gte", inicioDataHora)
+                                .append("$lte", fimDataHora)));
+
+        Document unwind = new Document("$unwind", "$itens");
+
+        Document group = new Document("$group",
+                new Document("_id",
+                        new Document("ano", new Document("$year", "$dataVenda"))
+                                .append("mes", new Document("$month", "$dataVenda"))
+                ).append("faturamentoBruto",
+                        new Document("$sum",
+                                new Document("$multiply", List.of("$itens.quantidade", "$itens.valorUnitario"))
+                        )
+                )
+        );
+
+        Document sort = new Document("$sort",
+                new Document("_id.ano", 1)
+                        .append("_id.mes", 1)
+        );
+
+        List<Document> resultados = mongoCollection()
+                .aggregate(List.of(match, unwind, group, sort), Document.class)
+                .into(new ArrayList<>());
+
+        List<FaturamentoMensalDTO> faturamentosEncontrados = resultados.stream().map(doc -> {
+            Document id = (Document) doc.get("_id");
+
+            FaturamentoMensalDTO dto = new FaturamentoMensalDTO();
+            dto.setAno(id.getInteger("ano"));
+            dto.setMes(id.getInteger("mes"));
+
+            BigDecimal faturamentoBruto = new BigDecimal(doc.get("faturamentoBruto").toString());
+            dto.setFaturamentoBruto(faturamentoBruto);
+
+            BigDecimal imposto = faturamentoBruto.multiply(new BigDecimal("0.09")).setScale(2, RoundingMode.HALF_UP);
+            dto.setImposto(imposto);
+
+            BigDecimal faturamentoLiquido = faturamentoBruto.subtract(imposto).setScale(2, RoundingMode.HALF_UP);
+            dto.setFaturamentoLiquido(faturamentoLiquido);
+
+            return dto;
+        }).toList();
+
+        Map<String, FaturamentoMensalDTO> faturamentoPorMes = faturamentosEncontrados.stream()
+                .collect(Collectors.toMap(
+                        dto -> dto.getAno() + "-" + dto.getMes(),
+                        dto -> dto
+                ));
+
+        List<FaturamentoMensalDTO> faturamentoCompleto = new ArrayList<>();
+
+        for (int i = 0; i < QTDE_MESES_RETROCEDENTES_FATURAMENTO_MENSAL; i++) {
+            LocalDate mesAtual = dataReferencia.withDayOfMonth(1).minusMonths(i);
+            String chave = mesAtual.getYear() + "-" + mesAtual.getMonthValue();
+            FaturamentoMensalDTO dtoExistente = faturamentoPorMes.get(chave);
+            if (dtoExistente == null) {
+                dtoExistente = new FaturamentoMensalDTO();
+                dtoExistente.setAno(mesAtual.getYear());
+                dtoExistente.setMes(mesAtual.getMonthValue());
+                dtoExistente.setFaturamentoBruto(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+                dtoExistente.setImposto(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+                dtoExistente.setFaturamentoLiquido(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+            }
+            faturamentoCompleto.add(dtoExistente);
+        }
+
+        return faturamentoCompleto;
     }
 }

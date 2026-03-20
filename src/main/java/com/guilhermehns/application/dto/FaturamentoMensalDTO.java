@@ -6,14 +6,18 @@ public class FaturamentoMensalDTO {
     private BigDecimal faturamentoBruto;
     private BigDecimal imposto;
     private BigDecimal faturamentoLiquido;
+    private int ano;
+    private int mes;
 
     public FaturamentoMensalDTO() {
     }
 
-    public FaturamentoMensalDTO(BigDecimal faturamentoBruto, BigDecimal imposto, BigDecimal faturamentoLiquido) {
+    public FaturamentoMensalDTO(BigDecimal faturamentoBruto, BigDecimal imposto, BigDecimal faturamentoLiquido, int ano, int mes) {
         this.faturamentoBruto = faturamentoBruto;
         this.imposto = imposto;
         this.faturamentoLiquido = faturamentoLiquido;
+        this.ano = ano;
+        this.mes = mes;
     }
 
     public BigDecimal getFaturamentoBruto() {
@@ -38,5 +42,21 @@ public class FaturamentoMensalDTO {
 
     public void setFaturamentoLiquido(BigDecimal faturamentoLiquido) {
         this.faturamentoLiquido = faturamentoLiquido;
+    }
+
+    public int getAno() {
+        return ano;
+    }
+
+    public void setAno(int ano) {
+        this.ano = ano;
+    }
+
+    public int getMes() {
+        return mes;
+    }
+
+    public void setMes(int mes) {
+        this.mes = mes;
     }
 }
