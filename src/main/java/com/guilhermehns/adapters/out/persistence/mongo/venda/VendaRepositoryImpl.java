@@ -109,23 +109,6 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                 }).toList());
             }
 
-            if (venda.getItens() != null) {
-                BigDecimal valorTotalProdutos = venda.getItens().stream()
-                        .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                venda.setValorTotalProdutos(valorTotalProdutos);
-                BigDecimal imposto = valorTotalProdutos
-                        .multiply(new BigDecimal("0.09"))
-                        .setScale(2, RoundingMode.HALF_UP);
-
-                BigDecimal valorTotalVenda = valorTotalProdutos
-                        .add(imposto)
-                        .setScale(2, RoundingMode.HALF_UP);
-
-                venda.setImposto(imposto);
-                venda.setValorTotalVenda(valorTotalVenda);
-            }
 
             return venda;
         }).toList();
@@ -166,25 +149,6 @@ public class VendaRepositoryImpl implements VendaRepository, PanacheMongoReposit
                 item.setValorUnitario(itemEntity.valorUnitario);
                 return item;
             }).toList());
-        }
-
-        if (venda.getItens() != null) {
-            BigDecimal valorTotalProdutos = venda.getItens().stream()
-                    .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            venda.setValorTotalProdutos(valorTotalProdutos);
-            BigDecimal imposto = valorTotalProdutos
-                    .multiply(new BigDecimal("0.09"))
-                    .setScale(2, RoundingMode.HALF_UP);
-
-            BigDecimal valorTotalVenda = valorTotalProdutos
-                    .add(imposto)
-                    .setScale(2, RoundingMode.HALF_UP);
-
-            venda.setImposto(imposto);
-            venda.setValorTotalVenda(valorTotalVenda);
-
         }
 
         return Optional.of(venda);

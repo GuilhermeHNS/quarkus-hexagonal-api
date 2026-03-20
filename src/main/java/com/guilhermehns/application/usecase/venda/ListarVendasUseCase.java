@@ -1,5 +1,6 @@
 package com.guilhermehns.application.usecase.venda;
 
+import com.guilhermehns.application.util.VendaCalculationHelper;
 import com.guilhermehns.domain.model.venda.Venda;
 import com.guilhermehns.domain.repository.VendaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,6 +16,9 @@ public class ListarVendasUseCase {
     }
 
     public List<Venda> executar() {
-        return repository.findAllVendas();
+        List<Venda> vendas = repository.findAllVendas();
+        return vendas.stream()
+                .map(VendaCalculationHelper::calcularTotais)
+                .toList();
     }
 }
